@@ -28,8 +28,12 @@ test:
 monitor:
   type:
   - process
+  - docker
   process:
   - command: node
     arguments: local-client.js
     multiOutput: avg
+  docker:
+    name:
+    - all
   interval: 1

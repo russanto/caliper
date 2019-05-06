@@ -52,7 +52,7 @@ class Ethereum extends BlockchainInterface {
         for (const key of Object.keys(this.ethereumConfig.contracts)) {
             let contractData = require(CaliperUtils.resolvePath(this.ethereumConfig.contracts[key].path, this.workspaceRoot)); // TODO remove path property
             promises.push(new Promise(function(resolve, reject) {
-                self.deployContract(self.web3, contractData).then((contractInstance) => {
+                self.deployContract(contractData).then((contractInstance) => {
                     self.bindContract(key, contractInstance.address).then((receipt) => {
                         resolve()
                     })
@@ -110,7 +110,7 @@ class Ethereum extends BlockchainInterface {
     }
 
     /**
-     * Submit a transaction to the geth context.
+     * Submit a transaction to the ethereum context.
      * @param {Object} context Context object.
      * @param {String} contractID Identity of the contract.
      * @param {String} contractVer Version of the contract.
@@ -139,7 +139,7 @@ class Ethereum extends BlockchainInterface {
 
     /**
      * Query the given smart contract according to the specified options.
-     * @param {object} context The Burrow context returned by {getContext}.
+     * @param {object} context The Ethereum context returned by {getContext}.
      * @param {string} contractID The name of the contract.
      * @param {string} contractVer The version of the contract.
      * @param {string} key The argument to pass to the smart contract query.
@@ -175,22 +175,32 @@ class Ethereum extends BlockchainInterface {
         // empty
     }
 
-    lookupContract(contract_id) {
-        return this.registry.methods.lookup(contract_id).call();
+    /**
+     * Fetch the address for the contract with the given label from the registry
+     * @param {string} contract_id
+     * @return {string} The contract address
+     */
+    lookupContract(label) {
+        return this.registry.methods.lookup(label).call();
     }
 
-    bindContract(contract_id, address) {
-        return this.registry.methods.bind(contract_id, address).send({from: this.ethereumConfig.contractDeployerAddress});
+    /**
+     * Binds the address to the label registering on the registry
+     * @param {string} label label to bind address to
+     * @param {string} address deployed contract address
+     */
+    bindContract(label, address) {
+        return this.registry.methods.bind(label, address).send({from: this.ethereumConfig.contractDeployerAddress});
     }
 
     /**
      * Deploys a new contract using the given web3 instance
-     * @param {Object} web3 The Web3 object
      * @param {JSON} contractData Contract data with abi and bytecode properties
      * @returns {Promise<web3.eth.Contract>} The deployed contract instance
      */
-    deployContract(web3, contractData) {
-        var contractDeployerAddress = this.ethereumConfig.contractDeployerAddress
+    deployContract(contractData) {
+        let web3 = this.web3
+        let contractDeployerAddress = this.ethereumConfig.contractDeployerAddress
         return new Promise(function(resolve, reject) {
             let contract = new web3.eth.Contract(contractData.abi);
             let contractDeploy = contract.deploy({
