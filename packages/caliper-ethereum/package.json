@@ -1,34 +1,28 @@
 {
-  "name": "caliper-samples",
+  "name": "caliper-ethereum",
   "version": "0.1.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/hyperledger/caliper"
   },
   "scripts": {
-    "test": "npm run lint && npm run nyc",
+    "test": "npm run lint && npm run nyc && npm run e2e",
     "lint": "npx eslint .",
-    "list": "node ./scripts/list.js",
     "nyc": "nyc mocha --recursive -t 10000"
   },
-  "engineStrict": true,
   "engines": {
     "node": ">=8.10.0",
     "npm": ">=5.6.0"
   },
+  "engine-strict": true,
+  "engineStrict": true,
   "files": [
     "*",
     "src/comm/template/report.html"
   ],
   "dependencies": {
     "caliper-core" : "0.1.0",
-    "caliper-burrow" : "0.1.0",
-    "caliper-composer" : "0.1.0",
-    "caliper-ethereum" : "0.1.0",
-    "caliper-fabric" : "0.1.0",
-    "caliper-fabric-ccp" : "0.1.0",
-    "caliper-iroha" : "0.1.0",
-    "caliper-sawtooth" : "0.1.0"
+    "web3": ">=1.0.0-beta.54"
   },
   "devDependencies": {
     "chai": "^3.5.0",
@@ -40,7 +34,7 @@
   },
   "nyc": {
     "exclude": [
-        "lib/**"
+      "lib/**"
     ],
     "reporter": [
       "text-summary",
