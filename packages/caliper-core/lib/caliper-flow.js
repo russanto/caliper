@@ -389,7 +389,7 @@ module.exports.run = async function(absConfigFile, absNetworkFile, admin, user, 
         await monitor.stop();
 
         let date = new Date().toISOString().replace(/-/g,'').replace(/:/g,'').substr(0,15);
-        let output = path.join(process.cwd(), `report-${date}.html`);
+        let output = path.join(process.cwd(), `../reports/report-${date}.html`);
         await report.generate(output);
         logger.info(`Generated report at ${output}`);
 
