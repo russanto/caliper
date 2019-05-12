@@ -39,7 +39,7 @@ class Ethereum extends BlockchainInterface {
      * @return {object} Promise<boolean> True if the account got unlocked successful otherwise false.
      */
     init() {
-        return this.web3.eth.personal.unlockAccount(this.ethereumConfig.contractDeployerAddress, this.ethereumConfig.contractDeployerAddressPassword, 1000)
+        return this.web3.eth.personal.unlockAccount(this.ethereumConfig.contractDeployerAddress, this.ethereumConfig.contractDeployerAddressPassword, null)
     }
 
     /**
@@ -47,6 +47,7 @@ class Ethereum extends BlockchainInterface {
      * @return {object} Promise execution for all the contract creations.
      */
     async installSmartContract() {
+        logger.info("Installing contracts pointed in network file...")
         let promises = [];
         let self = this;
         for (const key of Object.keys(this.ethereumConfig.contracts)) {
@@ -74,7 +75,7 @@ class Ethereum extends BlockchainInterface {
         context.web3 = new Web3(this.ethereumConfig.url);
         context.web3.transactionConfirmationBlocks = this.ethereumConfig.transactionConfirmationBlocks;
         context.contracts = {};
-        await context.web3.eth.personal.unlockAccount(this.ethereumConfig.fromAddress, this.ethereumConfig.fromAddressPassword, 1000)
+        await context.web3.eth.personal.unlockAccount(this.ethereumConfig.fromAddress, this.ethereumConfig.fromAddressPassword, null)
         for (const key of Object.keys(this.ethereumConfig.contracts)) {
             let contractData = require(CaliperUtils.resolvePath(this.ethereumConfig.contracts[key].path, this.workspaceRoot)); // TODO remove path property
             let contractAddress = await this.lookupContract(key);

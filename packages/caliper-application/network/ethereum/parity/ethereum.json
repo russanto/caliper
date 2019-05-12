@@ -1,0 +1,22 @@
+{
+    "caliper": {
+        "blockchain": "ethereum"
+    },
+    "ethereum": {
+        "url": "http://192.168.20.162:8545",
+        "contractDeployerAddress": "0xc5DB5196414BcAbAb906C7A828331b9443326612",
+        "contractDeployerAddressPassword": "password",
+        "fromAddress": "0xc5DB5196414BcAbAb906C7A828331b9443326612",
+        "fromAddressPassword": "password",
+        "transactionConfirmationBlocks": 2,
+        "registry": {
+            "address": "0x39fF4C9ef52d76211F06B86F5A31F147b027855a",
+            "path": "src/contract/ethereum/registry/registry.json"
+        },
+        "contracts": {
+            "simple": {
+                "path": "src/contract/ethereum/simple/simple.json"
+            }
+        }
+    }
+}
