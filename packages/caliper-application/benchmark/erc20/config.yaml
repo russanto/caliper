@@ -1,0 +1,32 @@
+---
+test:
+  name: simple
+  description: This is an example benchmark for caliper, to test the backend DLT's
+    performance with simple account opening & querying transactions
+  clients:
+    type: local
+    number: 2
+  rounds:
+  - label: transfer
+    txNumber:
+    - 200
+    rateControl:
+    - type: fixed-rate
+      opts:
+        tps: 50
+    arguments:
+      transferMoney: 10
+      txnPerBatch: 1
+    callback: benchmark/erc20/transfer.js
+monitor:
+  type:
+  - process
+  - docker
+  process:
+  - command: node
+    arguments: local-client.js
+    multiOutput: avg
+  docker:
+    name:
+    - all
+  interval: 1
