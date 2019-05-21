@@ -51,12 +51,25 @@ class Ethereum extends BlockchainInterface {
         let promises = [];
         let self = this;
         for (const key of Object.keys(this.ethereumConfig.contracts)) {
-            let contractData = require(CaliperUtils.resolvePath(this.ethereumConfig.contracts[key].path, this.workspaceRoot)); // TODO remove path property
+            let contractData = require(CaliperUtils.resolvePath(this.ethereumConfig.contracts[key].path, this.workspaceRoot));
+            contractData.constructorArgs = this.ethereumConfig.contracts[key].constructorArgs
             promises.push(new Promise(function(resolve, reject) {
                 self.deployContract(contractData).then((contractInstance) => {
-                    self.bindContract(key, contractInstance.address).then((receipt) => {
-                        resolve()
-                    })
+                    if (self.ethereumConfig.contracts[key].hasOwnProperty('init')) {
+                        logger.info("Executing init script for " + key)
+                        let initContractModule = require(CaliperUtils.resolvePath(self.ethereumConfig.contracts[key].init, self.workspaceRoot));
+                        initContractModule.init(contractInstance, self.ethereumConfig).then((results) => {
+                            self.bindContract(key, contractInstance.address).then((receipts) => {
+                                logger.info("Contract " + key + " ready")
+                                resolve()
+                            })
+                        })
+                    } else {
+                        self.bindContract(key, contractInstance.address).then((receipt) => {
+                            logger.info("Contract " + key + " ready")
+                            resolve()
+                        })
+                    }  
                 })
             }));
         }
@@ -156,7 +169,7 @@ class Ethereum extends BlockchainInterface {
 
         try {
             let receipt = await context.contracts[contractID].methods[fcn](key).call();
-            status.SetID(receipt.transactionHash);
+            status.SetID(key);
             status.SetResult(receipt);
             status.SetVerification(true);
             status.SetStatusSuccess();
@@ -204,9 +217,13 @@ class Ethereum extends BlockchainInterface {
         let contractDeployerAddress = this.ethereumConfig.contractDeployerAddress
         return new Promise(function(resolve, reject) {
             let contract = new web3.eth.Contract(contractData.abi);
-            let contractDeploy = contract.deploy({
+            let contractDeployData = {
                 data: contractData.bytecode
-            });
+            }
+            if (contractData.hasOwnProperty("constructorArgs") && Array.isArray(contractData.constructorArgs)) {
+                contractDeployData.arguments = contractData.constructorArgs
+            }
+            let contractDeploy = contract.deploy(contractDeployData);
             contractDeploy.send({
                 from: contractDeployerAddress,
                 gas: contractData.gas
