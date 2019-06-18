@@ -147,7 +147,12 @@ class Ethereum extends BlockchainInterface {
         let status = new TxStatus();
         try {
             context.engine.submitCallback(1);
-            let receipt = await context.contracts[contractID].methods[methodCall.verb](...methodCall.args).send({from: context.fromAddress});
+            let receipt = null;
+            if (methodCall.args) {
+                receipt = await context.contracts[contractID].methods[methodCall.verb](...methodCall.args).send({from: context.fromAddress});
+            } else {
+                receipt = await context.contracts[contractID].methods[methodCall.verb]().send({from: context.fromAddress});
+            }
             status.SetID(receipt.transactionHash);
             status.SetResult(receipt);
             status.SetVerification(true);
