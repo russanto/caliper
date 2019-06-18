@@ -31,6 +31,7 @@ class Ethereum extends BlockchainInterface {
         let registryData = require(CaliperUtils.resolvePath(this.ethereumConfig.registry.path, workspace_root))
         this.web3 = new Web3(this.ethereumConfig.url);
         this.web3.transactionConfirmationBlocks = this.ethereumConfig.transactionConfirmationBlocks;
+        this.web3.transactionPollingTimeout = this.ethereumConfig.transactionPollingTimeout;
         this.registry = new this.web3.eth.Contract(registryData.abi, this.ethereumConfig.registry.address);
     }
 
