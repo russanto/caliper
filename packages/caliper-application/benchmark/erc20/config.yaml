@@ -16,6 +16,7 @@ test:
         tps: 50
     arguments:
       transferMoney: 10
+      allowerMoney: 1
       txnPerBatch: 1
     callback: benchmark/erc20/transfer.js
 monitor:
