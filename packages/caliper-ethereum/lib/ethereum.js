@@ -49,7 +49,16 @@ class Ethereum extends BlockchainInterface {
      * @return {object} Promise<boolean> True if the account got unlocked successful otherwise false.
      */
     init() {
-        return this.web3.eth.personal.unlockAccount(this.ethereumConfig.contractDeployerAddress, this.ethereumConfig.contractDeployerAddressPassword, null)
+        if (this.ethereumConfig.unlockAllPassword) {
+            let promises = [];
+            promises.push(this.web3.eth.personal.unlockAccount(this.ethereumConfig.contractDeployerAddress, this.ethereumConfig.contractDeployerAddressPassword, null));
+            this.ethereumConfig.accounts.forEach(account => {
+                promises.push(this.web3.eth.personal.unlockAccount(account.address, this.ethereumConfig.unlockAllPassword, null));
+            });
+            return Promise.all(promises);
+        } else {
+            return this.web3.eth.personal.unlockAccount(this.ethereumConfig.contractDeployerAddress, this.ethereumConfig.contractDeployerAddressPassword, null);
+        }
     }
 
     /**
@@ -146,12 +155,13 @@ class Ethereum extends BlockchainInterface {
     async sendTransaction(context, contractID, contractVer, methodCall, timeout) {
         let status = new TxStatus();
         try {
+            let fromAddress = methodCall.fromAddress ? methodCall.fromAddress : context.fromAddress;
             context.engine.submitCallback(1);
             let receipt = null;
             if (methodCall.args) {
-                receipt = await context.contracts[contractID].methods[methodCall.verb](...methodCall.args).send({from: context.fromAddress});
+                receipt = await context.contracts[contractID].methods[methodCall.verb](...methodCall.args).send({from: fromAddress});
             } else {
-                receipt = await context.contracts[contractID].methods[methodCall.verb]().send({from: context.fromAddress});
+                receipt = await context.contracts[contractID].methods[methodCall.verb]().send({from: fromAddress});
             }
             status.SetID(receipt.transactionHash);
             status.SetResult(receipt);
