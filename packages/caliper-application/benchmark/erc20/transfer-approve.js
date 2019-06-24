@@ -106,7 +106,7 @@ function generateTransferFrom() {
 function generateWorkload() {
     let workload = [];
     for(let i= 0; i < txnPerBatch; i++) {
-        let verbID = Math.floor(Math.random() * 1);
+        let verbID = Math.floor(Math.random() * 2);
 
         switch (verbID) {
             case 0:

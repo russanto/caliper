@@ -1,8 +1,7 @@
 ---
 test:
-  name: simple
-  description: This is an example benchmark for caliper, to test the backend DLT's
-    performance with simple account opening & querying transactions
+  name: ERC20
+  description: This execute ERC20 functions
   clients:
     type: local
     number: 2
@@ -13,12 +12,36 @@ test:
     rateControl:
     - type: fixed-rate
       opts:
-        tps: 50
+        tps: 10
     arguments:
       transferMoney: 10
       allowerMoney: 1
       txnPerBatch: 1
     callback: benchmark/erc20/transfer.js
+  - label: transfer-approve
+    txNumber:
+    - 200
+    rateControl:
+    - type: fixed-rate
+      opts:
+        tps: 10
+    arguments:
+      transferMoney: 10
+      allowerMoney: 1
+      txnPerBatch: 1
+    callback: benchmark/erc20/transfer-approve.js
+  - label: transfer-approve-from
+    txNumber:
+    - 200
+    rateControl:
+    - type: fixed-rate
+      opts:
+        tps: 10
+    arguments:
+      transferMoney: 10
+      allowerMoney: 1
+      txnPerBatch: 1
+    callback: benchmark/erc20/transfer-approve-transferFrom.js
 monitor:
   type:
   - process
