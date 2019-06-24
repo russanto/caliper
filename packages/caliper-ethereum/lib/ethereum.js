@@ -49,16 +49,7 @@ class Ethereum extends BlockchainInterface {
      * @return {object} Promise<boolean> True if the account got unlocked successful otherwise false.
      */
     init() {
-        if (this.ethereumConfig.unlockAllPassword) {
-            let promises = [];
-            promises.push(this.web3.eth.personal.unlockAccount(this.ethereumConfig.contractDeployerAddress, this.ethereumConfig.contractDeployerAddressPassword, null));
-            this.ethereumConfig.accounts.forEach(account => {
-                promises.push(this.web3.eth.personal.unlockAccount(account.address, this.ethereumConfig.unlockAllPassword, null));
-            });
-            return Promise.all(promises);
-        } else {
-            return this.web3.eth.personal.unlockAccount(this.ethereumConfig.contractDeployerAddress, this.ethereumConfig.contractDeployerAddressPassword, null);
-        }
+        return this.web3.eth.personal.unlockAccount(this.ethereumConfig.contractDeployerAddress, this.ethereumConfig.contractDeployerAddressPassword, null);
     }
 
     /**
@@ -80,14 +71,14 @@ class Ethereum extends BlockchainInterface {
                         let initContractModule = require(CaliperUtils.resolvePath(self.ethereumConfig.contracts[key].init, self.workspaceRoot));
                         initContractModule.init(contractInstance, self.ethereumConfig).then((results) => {
                             self.bindContract(key, contractInstance.address).then((receipts) => {
-                                logger.info("Contract " + key + " ready")
-                                resolve()
+                                logger.info("Contract " + key + " ready at " + contractInstance.address);
+                                resolve();
                             })
                         })
                     } else {
                         self.bindContract(key, contractInstance.address).then((receipt) => {
-                            logger.info("Contract " + key + " ready")
-                            resolve()
+                            logger.info("Contract " + key + " ready at " + contractInstance.address);
+                            resolve();
                         })
                     }  
                 })
@@ -105,10 +96,18 @@ class Ethereum extends BlockchainInterface {
      */
     async getContext(name, args) {
         let context = {fromAddress: this.ethereumConfig.fromAddress};
-        context.web3 = new Web3(this.ethereumConfig.url);
-        context.web3.transactionConfirmationBlocks = this.ethereumConfig.transactionConfirmationBlocks;
+        context.web3 = this.web3;
+        // context.web3 = new Web3(this.ethereumConfig.url);
+        // context.web3.transactionConfirmationBlocks = this.ethereumConfig.transactionConfirmationBlocks;
         context.contracts = {};
         await context.web3.eth.personal.unlockAccount(this.ethereumConfig.fromAddress, this.ethereumConfig.fromAddressPassword, null)
+        if (this.ethereumConfig.unlockAllPassword) {
+            let promises = [];
+            this.ethereumConfig.accounts.forEach(account => {
+                promises.push(this.web3.eth.personal.unlockAccount(account.address, this.ethereumConfig.unlockAllPassword, null));
+            });
+            await Promise.all(promises);
+        }
         for (const key of Object.keys(this.ethereumConfig.contracts)) {
             let contractData = require(CaliperUtils.resolvePath(this.ethereumConfig.contracts[key].path, this.workspaceRoot)); // TODO remove path property
             let contractAddress = await this.lookupContract(key);
@@ -154,9 +153,9 @@ class Ethereum extends BlockchainInterface {
      */
     async sendTransaction(context, contractID, contractVer, methodCall, timeout) {
         let status = new TxStatus();
+        context.engine.submitCallback(1);
         try {
             let fromAddress = methodCall.fromAddress ? methodCall.fromAddress : context.fromAddress;
-            context.engine.submitCallback(1);
             let receipt = null;
             if (methodCall.args) {
                 receipt = await context.contracts[contractID].methods[methodCall.verb](...methodCall.args).send({from: fromAddress});
@@ -168,9 +167,8 @@ class Ethereum extends BlockchainInterface {
             status.SetVerification(true);
             status.SetStatusSuccess();
         } catch (err) {
-            console.log(err);
             status.SetStatusFail();
-            logger.error('Failed TX');
+            logger.error(err);
         }
         return Promise.resolve(status);
     }
@@ -198,8 +196,9 @@ class Ethereum extends BlockchainInterface {
             status.SetVerification(true);
             status.SetStatusSuccess();
         } catch (err) {
-            console.log(err);
             status.SetStatusFail();
+            logger.error('Failed reading ' + key + ' on function ' + fcn);
+            logger.error(err);
         }
         return Promise.resolve(status);
     }

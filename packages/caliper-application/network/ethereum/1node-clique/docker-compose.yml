@@ -8,4 +8,4 @@ services:
       - ./keys:/root/.ethereum/keystore
     ports:
       - 8545:8545
-    command: --unlock 0xc0A8e4D217eB85b812aeb1226fAb6F588943C2C2 --password /root/.ethereum/keystore/password --mine --minerthreads 2 --etherbase 0xc0A8e4D217eB85b812aeb1226fAb6F588943C2C2 --rpc --rpcaddr 0.0.0.0 --rpcvhosts=* --rpcapi admin,eth,miner,personal,web3 --nodiscover --gasprice 1
+    command: --unlock 0xc0A8e4D217eB85b812aeb1226fAb6F588943C2C2 --password /root/.ethereum/keystore/password --mine --minerthreads 2 --etherbase 0xc0A8e4D217eB85b812aeb1226fAb6F588943C2C2 --rpc --rpcaddr 0.0.0.0 --rpcvhosts '*' --rpccorsdomain '*' --rpcapi admin,eth,miner,personal,web3 --nodiscover --gasprice 1
