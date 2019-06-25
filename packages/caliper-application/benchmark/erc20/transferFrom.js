@@ -63,4 +63,4 @@ module.exports.end = function() {
     return Promise.resolve();
 };
 
-module.exports.account_array = account_array;
+module.exports.transfered = transfered; // to implement if needed
