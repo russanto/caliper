@@ -46,7 +46,7 @@ module.exports.init = async function(blockchain, context, args) {
         console.log("Allowance:" + allowed[account]);
     }
 
-    // To take away previously queryState from transaction count
+    // To take away previous queryState from transaction count
     contx.engine.submitCallback(-1*(blockchain.bcObj.ethereumConfig.accounts.length+1));
 
     return Promise.resolve()  

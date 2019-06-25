@@ -32,6 +32,9 @@ module.exports.init = async function(blockchain, context, args) {
         let queryAllowance = await bc.queryState(contx, 'mintable', 'v0', [account, blockchain.bcObj.ethereumConfig.fromAddress], 'allowance');
         allowed[account] = queryAllowance.GetResult();
     }
+
+    // To take away previous queryState from transaction count
+    contx.engine.submitCallback(-1*blockchain.bcObj.ethereumConfig.accounts.length);
     
     return Promise.resolve();
     
