@@ -97,8 +97,6 @@ class Ethereum extends BlockchainInterface {
     async getContext(name, args) {
         let context = {fromAddress: this.ethereumConfig.fromAddress};
         context.web3 = this.web3;
-        // context.web3 = new Web3(this.ethereumConfig.url);
-        // context.web3.transactionConfirmationBlocks = this.ethereumConfig.transactionConfirmationBlocks;
         context.contracts = {};
         await context.web3.eth.personal.unlockAccount(this.ethereumConfig.fromAddress, this.ethereumConfig.fromAddressPassword, null)
         if (this.ethereumConfig.unlockAllPassword) {
@@ -178,11 +176,11 @@ class Ethereum extends BlockchainInterface {
      * @param {object} context The Ethereum context returned by {getContext}.
      * @param {string} contractID The name of the contract.
      * @param {string} contractVer The version of the contract.
-     * @param {string} key The argument to pass to the smart contract query.
+     * @param {Array} keys Argument to pass to the smart contract query.
      * @param {string} [fcn=query] The contract query function name.
      * @return {Promise<object>} The promise for the result of the execution.
      */
-    async queryState(context, contractID, contractVer, key, fcn = 'query') {
+    async queryState(context, contractID, contractVer, keys, fcn = 'query') {
         let status = new TxStatus();
 
         if (context.engine) {
@@ -190,14 +188,14 @@ class Ethereum extends BlockchainInterface {
         }
 
         try {
-            let receipt = await context.contracts[contractID].methods[fcn](key).call();
-            status.SetID(key);
+            let receipt = await context.contracts[contractID].methods[fcn](...keys).call();
+            status.SetID(null);
             status.SetResult(receipt);
             status.SetVerification(true);
             status.SetStatusSuccess();
         } catch (err) {
             status.SetStatusFail();
-            logger.error('Failed reading ' + key + ' on function ' + fcn);
+            logger.error('Failed reading ' + keys + ' on function ' + fcn);
             logger.error(err);
         }
         return Promise.resolve(status);
