@@ -12,10 +12,9 @@ test:
     rateControl:
     - type: fixed-rate
       opts:
-        tps: 10
+        tps: 20
     arguments:
-      transferMoney: 10
-      allowerMoney: 1
+      transferMoney: 1
       txnPerBatch: 1
     callback: benchmark/erc20/transfer.js
   - label: transfer-approve
@@ -24,24 +23,22 @@ test:
     rateControl:
     - type: fixed-rate
       opts:
-        tps: 10
+        tps: 20
     arguments:
-      transferMoney: 10
-      allowerMoney: 1
+      allowerMoney: 10
       txnPerBatch: 1
-    callback: benchmark/erc20/transfer-approve.js
+    callback: benchmark/erc20/increaseAllowance.js
   - label: transfer-approve-from
     txNumber:
     - 200
     rateControl:
     - type: fixed-rate
       opts:
-        tps: 10
+        tps: 20
     arguments:
-      transferMoney: 10
       allowerMoney: 1
       txnPerBatch: 1
-    callback: benchmark/erc20/transfer-approve-transferFrom.js
+    callback: benchmark/erc20/transferFrom.js
 monitor:
   type:
   - process
